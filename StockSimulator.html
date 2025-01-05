@@ -1,0 +1,190 @@
+# Sentiment-Stock-Trading-Simulator
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .input-section, .actions-section {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1em;
+            width: 200px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .box {
+            width: 45%;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .bold {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stock Market Simulator</h1>
+        <div class="input-section">
+            <input type="text" id="stock-symbol" placeholder="Enter stock symbol (e.g., AAPL)">
+            <button onclick="startSimulation()">Start Simulation</button>
+        </div>
+        <div class="dashboard">
+            <div class="box">
+                <h3>Stock Price</h3>
+                <div id="price" class="bold">$100.00</div>
+                <div id="change">Change: 0%</div>
+            </div>
+            <div class="box">
+                <h3>Sentiment</h3>
+                <div id="sentiment-score" class="bold">Neutral</div>
+            </div>
+        </div>
+        <div class="actions-section">
+            <p>Your Balance: <span id="balance" class="bold">$1000.00</span></p>
+            <button onclick="buyStock()">Buy</button>
+            <button onclick="sellStock()">Sell</button>
+            <p>Owned Stocks: <span id="stocks-owned">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        let stockPrice = 100; 
+        let stockSymbol = "";
+        let balance = 1000; 
+        let stocksOwned = 0;
+        let initialPrice = stockPrice; 
+
+        function startSimulation() {
+            stockSymbol = document.getElementById('stock-symbol').value.trim().toUpperCase();
+            if (!stockSymbol) {
+                alert('Please enter a stock symbol.');
+                return;
+            }
+
+            document.getElementById('price').textContent = `$${stockPrice.toFixed(2)}`;
+            document.getElementById('sentiment-score').textContent = `Sentiment: ${getSentiment(stockSymbol)}`;
+            simulateStockPrice();
+            changeSentiment();
+        }
+
+        function simulateStockPrice() {
+            setInterval(() => {
+                const change = (Math.random() - 0.5) * 2; 
+                stockPrice = Math.max(0, stockPrice + change); 
+                const percentageChange = (((stockPrice - initialPrice) / initialPrice) * 100).toFixed(2);
+
+                document.getElementById('price').textContent = `$${stockPrice.toFixed(2)}`;
+                document.getElementById('change').textContent = `Change: ${percentageChange}%`;
+            }, 3000); 
+        }
+
+        function changeSentiment() {
+            setInterval(() => {
+                document.getElementById('sentiment-score').textContent = `Sentiment: ${getSentiment(stockSymbol)}`;
+            }, 10000); 
+        }
+
+        function getSentiment(symbol) {
+            const sentiments = {
+                AAPL: ['Positive', 'Neutral', 'Negative'],
+                GOOGL: ['Neutral', 'Positive', 'Negative'],
+                AMZN: ['Negative', 'Neutral', 'Positive']
+            };
+
+            const sentimentOptions = sentiments[symbol] || ['Neutral'];
+            const randomSentiment = sentimentOptions[Math.floor(Math.random() * sentimentOptions.length)];
+
+            return randomSentiment;
+        }
+
+        function buyStock() {
+            if (balance >= stockPrice) {
+                balance -= stockPrice;
+                stocksOwned++;
+                updateUI();
+                alert('Stock purchased successfully!');
+            } else {
+                alert('Insufficient balance to buy stock.');
+            }
+        }
+
+        function sellStock() {
+            if (stocksOwned > 0) {
+                balance += stockPrice;
+                stocksOwned--;
+                updateUI();
+                alert('Stock sold successfully!');
+            } else {
+                alert('You dont own any stocks to sell.');
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('balance').textContent = `$${balance.toFixed(2)}`;
+            document.getElementById('stocks-owned').textContent = stocksOwned;
+        }
+    </script>
+</body>
+</html>
